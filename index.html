@@ -3,51 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PIPAS BR 017 - V1.0</title>
+    <title>PIPAS BR 017 - ULTIMATE 2026</title>
     <style>
-        :root { --neon: #00f2ff; --money: #2ecc71; --danger: #ff0033; }
-        body, html { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Arial', sans-serif; color: white; touch-action: none; }
+        :root { --neon: #00f2ff; --money: #2ecc71; --danger: #ff3e3e; --gold: #f1c40f; }
+        body { margin: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; color: white; touch-action: none; }
         
         /* TELAS */
-        #intro, #shop-ui { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
-        #shop-ui { display: none; background: rgba(0,10,20,0.95); }
+        .screen { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; background: radial-gradient(circle, #1a1a2e 0%, #000 100%); }
+        #shop-menu { display: none; background: rgba(0,0,0,0.95); border: 2px solid var(--neon); }
 
-        /* HUD */
-        #hud { position: fixed; top: 10px; width: 100%; display: flex; justify-content: space-around; z-index: 100; display: none; pointer-events: none; }
-        .card { background: rgba(0,0,0,0.8); padding: 10px; border-radius: 5px; border: 1px solid var(--neon); font-weight: bold; font-size: 14px; }
+        /* INTERFACE (HUD) */
+        #hud { position: fixed; top: 10px; width: 100%; display: flex; justify-content: space-around; z-index: 500; display: none; }
+        .stat { background: rgba(0,0,0,0.8); padding: 10px 15px; border-radius: 8px; border-bottom: 3px solid var(--neon); text-align: center; }
 
-        /* CONTROLES */
-        #controls { position: fixed; bottom: 20px; width: 100%; display: none; justify-content: space-between; padding: 0 20px; box-sizing: border-box; }
-        .btn-game { padding: 15px 25px; background: rgba(0,242,255,0.2); border: 2px solid var(--neon); color: var(--neon); border-radius: 10px; font-weight: bold; pointer-events: auto; }
+        /* RADAR DA POLÍCIA */
+        #radar { position: fixed; bottom: 20px; left: 20px; width: 80px; height: 80px; border: 2px solid var(--danger); border-radius: 50%; background: rgba(255,0,0,0.1); display: none; }
+        #radar-pulse { width: 100%; height: 100%; border-radius: 50%; border: 1px solid var(--danger); animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
+
+        /* CONTROLES VISÍVEIS */
+        #controls { position: fixed; bottom: 20px; right: 20px; display: none; gap: 10px; flex-direction: column; }
+        .btn { padding: 15px 25px; background: var(--neon); color: black; border: none; border-radius: 8px; font-weight: 900; text-transform: uppercase; }
+        .btn-work { background: var(--money); }
         
-        canvas { display: block; }
-        .btn-main { padding: 15px 40px; background: var(--neon); border: none; color: black; font-weight: 900; border-radius: 5px; cursor: pointer; }
+        canvas { display: block; filter: contrast(1.2) brightness(1.1); }
     </style>
 </head>
 <body>
 
-    <div id="intro">
-        <h1 style="color:var(--neon); text-shadow: 0 0 20px var(--neon);">PIPAS BR 017</h1>
-        <button class="btn-main" onclick="start()">JOGAR AGORA</button>
+    <div id="intro" class="screen">
+        <h1 style="font-size: 40px; color: var(--neon); text-shadow: 0 0 30px var(--neon);">PIPAS BR 017</h1>
+        <p style="color: var(--gold);">TOP 1 IA EDITION - 2026</p>
+        <button class="btn" onclick="iniciar()">DAR O PLAY</button>
     </div>
 
-    <div id="shop-ui">
-        <h2>LOJA DA QUEBRADA</h2>
-        <div style="margin: 20px; text-align: center;">
-            <p>LINHA CHILENA - $100</p>
-            <button class="btn-game" onclick="buy('chilena')">COMPRAR</button>
+    <div id="shop-menu" class="screen">
+        <h2>LOJA DE COMBATE</h2>
+        <div style="margin: 20px;">
+            <p>LINHA CHILENA (DANO x2) - $200</p>
+            <button class="btn" onclick="comprar()">ADQUIRIR</button>
         </div>
-        <button class="btn-main" onclick="closeShop()">VOLTAR</button>
+        <button class="btn" onclick="toggleShop()" style="background: grey;">VOLTAR</button>
     </div>
 
     <div id="hud">
-        <div class="card">CARTEIRA: <span style="color:var(--money)">$ <span id="m-val">50.00</span></span></div>
-        <div class="card">RANK: <span id="r-val">NOVATO</span></div>
+        <div class="stat">MONEY: <br><span id="m-val" style="color:var(--money)">$ 50.00</span></div>
+        <div class="stat">RANK: <br><span id="r-val" style="color:var(--gold)">NOVATO</span></div>
+        <div class="stat">CORTES: <br><span id="c-val">0</span></div>
     </div>
 
+    <div id="radar"><div id="radar-pulse"></div></div>
+
     <div id="controls">
-        <button class="btn-game" id="job-btn" onclick="doWork()">FAZER ENTREGA (+$20)</button>
-        <button class="btn-game" onclick="openShop()">LOJA</button>
+        <button class="btn btn-work" onclick="fazerEntrega()">ENTREGAR (+$30)</button>
+        <button class="btn" onclick="toggleShop()">LOJA</button>
     </div>
 
     <canvas id="game"></canvas>
@@ -55,73 +64,76 @@
 <script>
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    let money = 50.0;
-    let playing = false;
-    let pX, pY;
-    let targetX;
+    let money = 50.00, cuts = 0, playing = false, time = 0;
+    let pX, pY, targetX;
 
-    function start() {
+    function iniciar() {
         document.getElementById('intro').style.display = 'none';
         document.getElementById('hud').style.display = 'flex';
+        document.getElementById('radar').style.display = 'block';
         document.getElementById('controls').style.display = 'flex';
-        pX = canvas.width / 2;
-        pY = canvas.height / 2;
-        targetX = pX;
+        pX = canvas.width / 2; targetX = pX; pY = canvas.height / 2;
         playing = true;
     }
 
-    function doWork() {
-        const btn = document.getElementById('job-btn');
-        btn.innerText = "ENTREGANDO...";
-        btn.disabled = true;
-        setTimeout(() => {
-            money += 20;
-            document.getElementById('m-val').innerText = money.toFixed(2);
-            btn.innerText = "FAZER ENTREGA (+$20)";
-            btn.disabled = false;
-        }, 2000);
+    function fazerEntrega() {
+        money += 30.00;
+        document.getElementById('m-val').innerText = "$ " + money.toFixed(2);
+        if(money > 500) document.getElementById('r-val').innerText = "VETERANO";
     }
 
-    function openShop() { document.getElementById('shop-ui').style.display = 'flex'; }
-    function closeShop() { document.getElementById('shop-ui').style.display = 'none'; }
+    function toggleShop() {
+        const s = document.getElementById('shop-menu');
+        s.style.display = (s.style.display == 'flex') ? 'none' : 'flex';
+    }
 
-    // Movimentação por toque
-    window.addEventListener('touchstart', (e) => {
-        if(!playing) return;
-        targetX = e.touches[0].clientX;
-    });
+    // Movimento por toque no celular
+    window.addEventListener('touchstart', (e) => { targetX = e.touches[0].clientX; });
+    window.addEventListener('touchmove', (e) => { targetX = e.touches[0].clientX; });
 
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
     window.onresize = resize; resize();
-
-    function drawPipa(x, y) {
-        ctx.save();
-        ctx.translate(x, y);
-        // Desenho da Pipa
-        ctx.beginPath();
-        ctx.moveTo(0, -40); ctx.lineTo(30, 0); ctx.lineTo(0, 45); ctx.lineTo(-30, 0);
-        ctx.closePath();
-        ctx.fillStyle = "cyan";
-        ctx.shadowBlur = 15; ctx.shadowColor = "cyan";
-        ctx.fill();
-        // Rabiola
-        ctx.beginPath();
-        ctx.moveTo(0, 45);
-        for(let i=1; i<6; i++) ctx.lineTo(Math.sin(Date.now()*0.01+i)*10, 45 + i*15);
-        ctx.strokeStyle = "white"; ctx.stroke();
-        ctx.restore();
-    }
 
     function loop() {
         if(playing) {
-            ctx.fillStyle = '#00050a';
-            ctx.fillRect(0,0,canvas.width, canvas.height);
-            
-            // Suavizar movimento
-            pX += (targetX - pX) * 0.1;
-            pY = (canvas.height/2) + Math.sin(Date.now()*0.002) * 20;
+            time += 0.05;
+            // Efeito de Céu Dinâmico
+            let g = ctx.createLinearGradient(0,0,0, canvas.height);
+            g.addColorStop(0, '#000814'); g.addColorStop(1, '#001d3d');
+            ctx.fillStyle = g; ctx.fillRect(0,0,canvas.width, canvas.height);
 
-            drawPipa(pX, pY);
+            // Suavização do Voo
+            pX += (targetX - pX) * 0.1;
+            pY = (canvas.height/2) + Math.sin(time) * 30;
+
+            // Desenho da Pipa Ultra Neon
+            ctx.save();
+            ctx.translate(pX, pY);
+            ctx.rotate(Math.sin(time*0.5)*0.1);
+            
+            // Glow da Pipa
+            ctx.shadowBlur = 25; ctx.shadowColor = "cyan";
+            ctx.beginPath();
+            ctx.moveTo(0, -60); ctx.lineTo(45, 0); ctx.lineTo(0, 70); ctx.lineTo(-45, 0);
+            ctx.closePath();
+            ctx.fillStyle = "rgba(0, 242, 255, 0.9)"; ctx.fill();
+            ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke();
+            
+            // Rabiola com física
+            ctx.beginPath(); ctx.moveTo(0, 70);
+            for(let i=1; i<15; i++) {
+                ctx.lineTo(Math.sin(time*2 + i)*15, 70 + i*20);
+            }
+            ctx.strokeStyle = "rgba(255,255,255,0.4)"; ctx.stroke();
+            ctx.restore();
+
+            // Mensagem de Status
+            ctx.fillStyle = "rgba(255,255,255,0.1)";
+            ctx.font = "bold 50px Arial"; ctx.textAlign = "center";
+            ctx.fillText("017 BR", canvas.width/2, canvas.height/2 + 200);
         }
         requestAnimationFrame(loop);
     }
