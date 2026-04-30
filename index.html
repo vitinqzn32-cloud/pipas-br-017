@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PIPAS BR 017 - ULTIMATE</title>
+    <style>
+        :root { --neon: #00f2ff; --money: #2ecc71; --gold: #f1c40f; }
+        body, html { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: sans-serif; color: white; }
+        #intro { position: fixed; inset: 0; background: #000; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; }
+        .logo { font-size: 35px; font-weight: 900; color: var(--neon); text-shadow: 0 0 15px var(--neon); margin-bottom: 20px; }
+        #hud { position: fixed; top: 10px; width: 100%; display: flex; justify-content: space-around; pointer-events: none; z-index: 100; display: none; }
+        .card { background: rgba(0,0,0,0.8); padding: 8px; border-radius: 5px; border-bottom: 2px solid var(--neon); }
+        canvas { display: block; }
+        button { padding: 15px 30px; background: none; border: 2px solid var(--neon); color: var(--neon); font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div id="intro">
+        <div class="logo">PIPAS BR 017</div>
+        <button onclick="start()">INICIAR JOGO</button>
+        <p style="font-size: 10px; margin-top: 20px; color: #444;">BY GEMINI TOP 1 IA</p>
+    </div>
+    <div id="hud">
+        <div class="card">CASH: <span style="color:var(--money)">$ 50.00</span></div>
+        <div class="card">RANK: NOVATO</div>
+    </div>
+    <canvas id="game"></canvas>
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+        let playing = false;
+        let time = 0;
+        function start() { document.getElementById('intro').style.display='none'; document.getElementById('hud').style.display='flex'; playing=true; }
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.onresize = resize; resize();
+        function loop() {
+            if(playing) {
+                time += 0.05;
+                ctx.fillStyle = '#000814'; ctx.fillRect(0,0,canvas.width, canvas.height);
+                ctx.save(); ctx.translate(canvas.width/2, canvas.height/2 + Math.sin(time)*20);
+                ctx.beginPath(); ctx.moveTo(0,-40); ctx.lineTo(30,0); ctx.lineTo(0,40); ctx.lineTo(-30,0); ctx.closePath();
+                ctx.fillStyle = "cyan"; ctx.shadowBlur = 20; ctx.shadowColor = "cyan"; ctx.fill();
+                ctx.restore();
+                ctx.fillStyle = "white"; ctx.textAlign = "center"; ctx.fillText("PILOTANDO NA QUEBRADA...", canvas.width/2, canvas.height/2 + 80);
+            }
+            requestAnimationFrame(loop);
+        }
+        loop();
+    </script>
+</body>
+</html>
