@@ -3,100 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PIPAS BR 017 - NEXT GEN</title>
+    <title>PIPAS BR 017 - REALISTIC</title>
     <style>
-        :root { --neon: #00f2ff; --money: #2ecc71; }
-        body, html { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Arial Black', sans-serif; }
+        body, html { margin: 0; padding: 0; overflow: hidden; background: #000; font-family: 'Impact', sans-serif; }
         
-        /* FUNDO REALISTA (COMUNIDADE) */
-        #bg {
+        /* O CENÁRIO QUE VOCÊ QUERIA */
+        #favela-bg {
             position: fixed; inset: 0;
-            background: url('https://images.unsplash.com/photo-1590424607733-4f9687989931?q=80&w=2000') center/cover;
-            filter: brightness(0.3) contrast(1.2); z-index: -1;
+            background: url('https://w0.peakpx.com/wallpaper/101/952/HD-wallpaper-favela-rio-de-janeiro-slums-brazil.jpg') center/cover;
+            filter: brightness(0.5) contrast(1.2); z-index: -1;
         }
 
-        /* HUD DE ELITE */
-        #hud { position: fixed; top: 15px; width: 100%; display: flex; justify-content: space-around; z-index: 100; display: none; }
-        .card { background: rgba(0,0,0,0.8); border: 2px solid var(--neon); padding: 10px 20px; border-radius: 12px; color: white; box-shadow: 0 0 15px var(--neon); }
+        #hud {
+            position: fixed; top: 10px; width: 100%; display: flex;
+            justify-content: space-around; z-index: 100;
+        }
+        .info {
+            background: rgba(0,0,0,0.8); color: #00f2ff;
+            padding: 10px; border-radius: 5px; border-bottom: 3px solid #00f2ff;
+            text-shadow: 0 0 10px cyan;
+        }
 
-        /* TELA DE INÍCIO */
-        #start-screen { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; color: var(--neon); }
-        .btn-play { padding: 20px 50px; background: var(--neon); border: none; font-weight: 900; font-size: 20px; border-radius: 10px; cursor: pointer; color: black; box-shadow: 0 0 30px var(--neon); }
+        #work-btn {
+            position: fixed; bottom: 20px; right: 20px;
+            padding: 20px; background: #2ecc71; color: white;
+            border: none; border-radius: 50%; font-weight: bold;
+            box-shadow: 0 0 20px #2ecc71;
+        }
 
-        /* BOTÃO DE TRAMPO */
-        #work-btn { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); padding: 15px 40px; background: var(--money); border: none; border-radius: 50px; font-weight: 900; box-shadow: 0 0 20px var(--money); display: none; color: white; }
-        
-        canvas { display: block; }
+        canvas { display: block; cursor: none; }
     </style>
 </head>
 <body>
 
-    <div id="bg"></div>
-
-    <div id="start-screen">
-        <h1 style="font-size: 50px; text-shadow: 0 0 30px cyan;">017 ULTIMATE</h1>
-        <p style="color: gold; margin-bottom: 30px;">VERSÃO 2026 - GRAFICOS ALTOS</p>
-        <button class="btn-play" onclick="start()">ENTRAR NA QUEBRADA</button>
-    </div>
+    <div id="favela-bg"></div>
 
     <div id="hud">
-        <div class="card">CASH: <span style="color:var(--money)">$ <span id="m-val">50.00</span></span></div>
-        <div class="card">RANK: <span style="color:gold">MESTRE</span></div>
+        <div class="info">MONEY: $ <span id="cash">50</span></div>
+        <div class="info">RANK: RELO MASTER</div>
     </div>
 
-    <button id="work-btn" onclick="delivery()">FAZER ENTREGA (+$50)</button>
+    <button id="work-btn" onclick="addMoney()">$</button>
 
     <canvas id="game"></canvas>
 
 <script>
     const canvas = document.getElementById('game');
     const ctx = canvas.getContext('2d');
-    let money = 50.0, playing = false;
-    let pipaImg = new Image();
-    pipaImg.src = 'https://i.imgur.com/vH9Z2zE.png'; // Pipa de Combate Realista
+    let money = 50;
+    
+    // CARREGANDO A PIPA REAL
+    const pipa = new Image();
+    pipa.src = 'https://i.imgur.com/GisLhB2.png'; // Pipa Realista PNG
 
-    function start() {
-        document.getElementById('start-screen').style.display = 'none';
-        document.getElementById('hud').style.display = 'flex';
-        document.getElementById('work-btn').style.display = 'block';
-        playing = true;
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
-
-    function delivery() {
-        money += 50;
-        document.getElementById('m-val').innerText = money.toFixed(2);
-    }
-
-    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
     window.onresize = resize; resize();
 
-    let pX = window.innerWidth / 2;
-    window.addEventListener('touchmove', (e) => { if(playing) pX = e.touches[0].clientX; });
-    window.addEventListener('mousemove', (e) => { if(playing) pX = e.clientX; });
+    let pX = canvas.width/2;
+    let pY = canvas.height/2;
+
+    window.addEventListener('touchmove', (e) => {
+        pX = e.touches[0].clientX;
+        pY = e.touches[0].clientY - 100;
+    });
+
+    function addMoney() {
+        money += 20;
+        document.getElementById('cash').innerText = money;
+    }
 
     function loop() {
-        if(playing) {
-            ctx.clearRect(0,0,canvas.width, canvas.height);
-            let time = Date.now() * 0.002;
-            let pY = (canvas.height * 0.4) + Math.sin(time)*30;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        let time = Date.now() * 0.005;
+        let wobble = Math.sin(time) * 15;
 
-            // Linha com Brilho
-            ctx.beginPath(); ctx.moveTo(pX, pY); ctx.lineTo(canvas.width/2, canvas.height + 50);
-            ctx.strokeStyle = "rgba(255,255,255,0.5)"; ctx.lineWidth = 1; ctx.stroke();
+        // LINHA DE CEROL BRANCA
+        ctx.beginPath();
+        ctx.moveTo(pX, pY + wobble);
+        ctx.lineTo(canvas.width/2, canvas.height + 50);
+        ctx.strokeStyle = "rgba(255,255,255,0.8)";
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
 
-            // Pipa com Sombra e Glow
-            ctx.save();
-            ctx.translate(pX, pY);
-            ctx.rotate(Math.sin(time*0.5)*0.15);
-            ctx.shadowBlur = 30; ctx.shadowColor = "cyan";
-            ctx.drawImage(pipaImg, -40, -40, 80, 80);
-            
-            // Rabiola
-            ctx.beginPath(); ctx.moveTo(0, 40);
-            for(let i=0; i<10; i++) ctx.lineTo(Math.sin(time*2+i)*10, 40 + i*20);
-            ctx.strokeStyle = "white"; ctx.lineWidth = 2; ctx.stroke();
-            ctx.restore();
+        // DESENHANDO A PIPA
+        ctx.save();
+        ctx.translate(pX, pY + wobble);
+        ctx.rotate(Math.sin(time*0.5) * 0.1);
+        
+        // Se a imagem carregar, usa ela. Se não, usa o motor gráfico reserva.
+        if(pipa.complete) {
+            ctx.shadowBlur = 20; ctx.shadowColor = "cyan";
+            ctx.drawImage(pipa, -60, -60, 120, 120);
+        } else {
+            // Desenho de Pipa Profissional em Vetor
+            ctx.fillStyle = "cyan";
+            ctx.beginPath();
+            ctx.moveTo(0, -50); ctx.lineTo(40, 0); ctx.lineTo(0, 60); ctx.lineTo(-40, 0);
+            ctx.fill();
         }
+
+        // RABIOLA COMPRIDA
+        ctx.beginPath();
+        ctx.moveTo(0, 60);
+        for(let i=0; i<15; i++) {
+            ctx.lineTo(Math.sin(time + i*0.5)*20, 60 + (i*20));
+        }
+        ctx.strokeStyle = "white"; ctx.stroke();
+        ctx.restore();
+
         requestAnimationFrame(loop);
     }
     loop();
